@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "261581381565",
+    "project_id": "pool-857f1",
+    "storage_bucket": "pool-857f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261581381565:android:3ff417802e7c4336d3fcd4",
+        "android_client_info": {
+          "package_name": "com.poollabs.pool"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "261581381565-027apdi8j57unkefifatfgu6lnn8g6b9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2ZC8EJQsdGls-pf6CQiUOo0Axb-TSENc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "261581381565-027apdi8j57unkefifatfgu6lnn8g6b9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "261581381565-q9t5ttkaqbua5ulvnjbcoshfb8dqnha3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.poollabs.pool"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

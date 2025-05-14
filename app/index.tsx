@@ -1,0 +1,148 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { Button, Pressable, ScrollView, Text, View } from "react-native";
+import "../global.css";
+import { signInWithGoogle } from './services/auth';
+export default function Index() {
+
+  async function fetchCustomer():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/customer",
+      {
+        method: "POST",
+        body: JSON.stringify("test@test.com" ),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then(res => res.json());
+  }
+
+  async function getCustomer():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/customer/cus_SJ6a8xKbKjIEGz",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then(res => res.json());
+  }
+
+  async function createConnectAccount():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/connect-account",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then(res => res.json());
+  }
+
+  return (
+    <ScrollView className="flex-1 bg-white">
+
+  <Button
+      title="Google Sign-In"
+      onPress={() => signInWithGoogle().then(() => console.log('Signed in with Google!'))}
+    />
+
+    <Button title="Create Customer" onPress={() => fetchCustomer().then((data)=>console.log(data))} />
+
+      <Button title='Get Customer' onPress={() => getCustomer().then((data)=>console.log(data))} />
+
+      <Button title='Create Connect Account' onPress={() => createConnectAccount().then((data)=>console.log(data))} />
+
+      {/* Header */}
+      <View className="px-4 pt-12 pb-4">
+        <Text className="text-2xl font-bold text-gray-800">Find your place</Text>
+        <Text className="text-gray-500 mt-1">Discover the best places to stay</Text>
+      </View>
+
+      {/* Search Bar */}
+      <View className="px-4 mb-6">
+        <Pressable className="flex-row items-center bg-gray-100 p-4 rounded-full">
+          <Text className="text-gray-500">Where to?</Text>
+        </Pressable>
+      </View>
+
+      {/* Categories */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 mb-6">
+        <View className="mr-4">
+          <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
+            <Text className="text-2xl">🏠</Text>
+          </View>
+          <Text className="text-center mt-2 text-gray-600">Houses</Text>
+        </View>
+        <View className="mr-4">
+          <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
+            <Text className="text-2xl">🏖️</Text>
+          </View>
+          <Text className="text-center mt-2 text-gray-600">Beach</Text>
+        </View>
+        <View className="mr-4">
+          <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
+            <Text className="text-2xl">🏔️</Text>
+          </View>
+          <Text className="text-center mt-2 text-gray-600">Mountain</Text>
+        </View>
+        <View className="mr-4">
+          <View className="w-16 h-16 rounded-full bg-gray-100 items-center justify-center">
+            <Text className="text-2xl">🌆</Text>
+          </View>
+          <Text className="text-center mt-2 text-gray-600">City</Text>
+        </View>
+      </ScrollView>
+
+      {/* Featured Listings */}
+      <View className="px-4">
+        <Text className="text-xl font-bold text-gray-800 mb-4">Featured Places</Text>
+        <View className="space-y-4">
+          {/* Listing Card 1 */}
+          <View className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <View className="h-48 bg-gray-200">
+              <Text className="text-center mt-20 text-gray-500">Image Placeholder</Text>
+            </View>
+            <LinearGradient
+              colors={['#DBEAFE', '#C7D2FE']}
+              className="p-4"
+            >
+              <Text className="font-bold text-gray-800">Luxury Villa</Text>
+              <Text className="text-gray-500">Bali, Indonesia</Text>
+              <Text className="text-gray-800 font-bold mt-2">$250/night</Text>
+            </LinearGradient>
+          </View>
+
+          {/* Listing Card 2 */}
+          <View className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <View className="h-48 bg-gray-200">
+              <Text className="text-center mt-20 text-gray-500">Image Placeholder</Text>
+            </View>
+            <LinearGradient
+              colors={['#FFF1F2', '#FFF7ED']}
+              className="p-4"
+            >
+              <Text className="font-bold text-gray-800">Beach House</Text>
+              <Text className="text-gray-500">Maldives</Text>
+              <Text className="text-gray-800 font-bold mt-2">$350/night</Text>
+            </LinearGradient>
+          </View>
+
+          {/* Listing Card 3 */}
+          <View className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <View className="h-48 bg-gray-200">
+              <Text className="text-center mt-20 text-gray-500">Image Placeholder</Text>
+            </View>
+            <LinearGradient
+              colors={['#D1FAE5', '#A7F3D0']}
+              className="p-4"
+            >
+              <Text className="font-bold text-gray-800">Mountain Cabin</Text>
+              <Text className="text-gray-500">Swiss Alps</Text>
+              <Text className="text-gray-800 font-bold mt-2">$280/night</Text>
+            </LinearGradient>
+          </View>
+        </View>
+      </View>
+    </ScrollView>
+  );
+}
