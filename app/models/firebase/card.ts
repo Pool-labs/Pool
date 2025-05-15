@@ -1,6 +1,6 @@
 // models/VirtualCard.ts
 export interface Card {
-    id: string; // Unique identifier for the  card
+    id: string; // Unique identifier for the  card provided by firebase doc id
     type: 'virtual' | 'physical'; // Type of card virtual or physical
     userId: string; // User associated with the  card
     poolId: string; // Pool associated with the  card

@@ -1,6 +1,5 @@
 import { IssuingCardParams } from "@/app/models/stripe/card-params";
 import { stripe } from "@/stripe-server";
-import { DELETE } from "../connect-account/index+api";
 
 export async function POST(request: Request) {
   const { connectAccountId, type, spendingControls, shipping, name, poolName } = await request.json();

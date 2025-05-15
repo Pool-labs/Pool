@@ -5,9 +5,6 @@ import path from 'path';
 export async function POST(request: Request) { //pools currently only supports ACH payments
   const { name } = await request.json();
 
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const ip = forwardedFor?.split(',')[0]?.trim() || '0.0.0.0';
-
   const filePath = path.join(process.cwd(), 'assets/images/icon.png');
   const fileBuffer = fs.readFileSync(filePath);
 

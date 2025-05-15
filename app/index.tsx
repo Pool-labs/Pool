@@ -1,8 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { Button, Pressable, ScrollView, Text, View } from "react-native";
 import "../global.css";
-import { signInWithGoogle } from './services/auth';
-import { IssuingCardSpendingControls } from './models/stripe/spending-controls';
+import { signInWithGoogle } from './services/firebase/auth';
+import { createUser } from './models/firebase/user';
+import { createUserInFirestore } from './services/firebase/userService';
 export default function Index() {
 
   async function fetchCustomer():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
@@ -106,6 +107,8 @@ export default function Index() {
 
           <Button title='Create Payment Intent' onPress={() => createPaymentIntent().then((data)=>console.log(data))} />
             <Button title='Create Card' onPress={() => createCard().then((data)=>console.log(data))} />
+
+              <Button title='Create User' onPress={() => createUserInFirestore("test@test.com", "Jim John", "1234567890", "1234567890", [], "1234567890").then((data)=>console.log(data) )} />
 
       {/* Header */}
       <View className="px-4 pt-12 pb-4">

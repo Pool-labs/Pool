@@ -1,5 +1,6 @@
 export interface User {
-    id: string; // Unique identifier for the user
+    id: string; // Unique identifier for the user provided by firebase doc id
+    customerId: string; // Unique identifier for the user's Stripe customer
     cryptoWalletId: string; // Unique identifier for the user's crypto wallet
     email: string; // User's email address
     name: string; // User's full name
@@ -8,6 +9,17 @@ export interface User {
     cardIds?: string[]; // Array of card IDs issued to the user
   }
   
-  export const createUser = (id: string, email: string, name: string, poolIds: string[], cryptoWalletId: string, paymentMethodId?: string, cardIds?: string[]): User => {
-    return { id, email, name, poolIds, paymentMethodId, cardIds, cryptoWalletId}; // Added required cryptoWalletId field
+  export const createUser = (id: string, email: string, name: string, poolIds: string[], cryptoWalletId: string, customerId: string, paymentMethodId?: string, cardIds?: string[]): User => {
+    // Ensure we don't pass undefined values to Firestore
+    return { 
+      id, 
+      email, 
+      name, 
+      poolIds: poolIds || [], 
+      cryptoWalletId, 
+      customerId,
+      // Use conditional assignment to handle optional fields
+      ...(paymentMethodId ? { paymentMethodId } : {}),
+      cardIds: cardIds || [] 
+    };
   };
