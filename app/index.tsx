@@ -8,7 +8,7 @@ export default function Index() {
     return await fetch("/api/stripe/customer",
       {
         method: "POST",
-        body: JSON.stringify("test@test.com" ),
+        body: JSON.stringify({email: "test@test.com", name: "Tim Timmy" }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -34,6 +34,30 @@ export default function Index() {
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ name: "Dave's Hot Chicken" })
+      }
+    ).then(res => res.json());
+  }
+
+  async function deleteConnectAccount():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/connect-account",
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: "acct_1ROtNoGaxbJyk7ie" }),
+      }
+    ).then(res => res.json());
+  }
+
+  async function getConnectAccount():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/connect-account/acct_1ROrcu2cx2jhBegh",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     ).then(res => res.json());
   }
@@ -51,6 +75,10 @@ export default function Index() {
       <Button title='Get Customer' onPress={() => getCustomer().then((data)=>console.log(data))} />
 
       <Button title='Create Connect Account' onPress={() => createConnectAccount().then((data)=>console.log(data))} />
+
+      <Button title='Delete Connect Account' onPress={() => deleteConnectAccount().then((data)=>console.log(data))} />
+
+        <Button title='get connect account' onPress={() => getConnectAccount().then((data)=>console.log(data))} />
 
       {/* Header */}
       <View className="px-4 pt-12 pb-4">
