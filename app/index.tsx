@@ -2,13 +2,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Button, Pressable, ScrollView, Text, View } from "react-native";
 import "../global.css";
 import { signInWithGoogle } from './services/auth';
+import { IssuingCardSpendingControls } from './models/stripe/spending-controls';
 export default function Index() {
 
   async function fetchCustomer():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
     return await fetch("/api/stripe/customer",
       {
         method: "POST",
-        body: JSON.stringify({email: "test@test.com", name: "Tim Timmy" }),
+        body: JSON.stringify({email: "test@test.com", name: "Jim John" }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -17,7 +18,7 @@ export default function Index() {
   }
 
   async function getCustomer():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
-    return await fetch("/api/stripe/customer/cus_SJ6a8xKbKjIEGz",
+    return await fetch("/api/stripe/customer/cus_SJUSboQUQ4ZO3E",
       {
         method: "GET",
         headers: {
@@ -46,7 +47,7 @@ export default function Index() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id: "acct_1ROtNoGaxbJyk7ie" }),
+        body: JSON.stringify({ id: "acct_1ROvt7Gdjtv6fqHm" }),
       }
     ).then(res => res.json());
   }
@@ -58,6 +59,29 @@ export default function Index() {
         headers: {
           "Content-Type": "application/json",
         },
+      }
+    ).then(res => res.json());
+  }
+
+  async function createPaymentIntent():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/payment-intent",
+      {
+        method: "POST",
+        body: JSON.stringify({ customerId: "cus_SJUSboQUQ4ZO3E", amount: 1000, destination: "acct_1RP63jGbCgTvIQV1", description: "Initial payment", paymentMethodId: "pm_1ROrzLGf0znAb5Qzir6HVozZ" }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    ).then(res => res.json());
+  }
+
+  async function createCard():Promise<{customer: string, ephemeralKey: string, paymentIntent: string}> {
+    return await fetch("/api/stripe/card-issuing",
+      {
+        method: "POST",
+        body: JSON.stringify({ 
+        connectAccountId: "acct_1RP63jGbCgTvIQV1", type: "virtual", spendingControls: undefined, shipping: null, address: null, name: "hussma conway", poolName: "Pool",
+      }),
       }
     ).then(res => res.json());
   }
@@ -79,6 +103,9 @@ export default function Index() {
       <Button title='Delete Connect Account' onPress={() => deleteConnectAccount().then((data)=>console.log(data))} />
 
         <Button title='get connect account' onPress={() => getConnectAccount().then((data)=>console.log(data))} />
+
+          <Button title='Create Payment Intent' onPress={() => createPaymentIntent().then((data)=>console.log(data))} />
+            <Button title='Create Card' onPress={() => createCard().then((data)=>console.log(data))} />
 
       {/* Header */}
       <View className="px-4 pt-12 pb-4">

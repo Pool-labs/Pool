@@ -5,6 +5,9 @@ import path from 'path';
 export async function POST(request: Request) { //pools currently only supports ACH payments
   const { name } = await request.json();
 
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  const ip = forwardedFor?.split(',')[0]?.trim() || '0.0.0.0';
+
   const filePath = path.join(process.cwd(), 'assets/images/icon.png');
   const fileBuffer = fs.readFileSync(filePath);
 
@@ -50,8 +53,7 @@ export async function POST(request: Request) { //pools currently only supports A
       last_name: "Pool",
       email: "admin@poolapp.co",
       phone: "+13145555555",
-      ssn_last_4: "5323",
-      id_number: "453235323",
+      id_number: "000000000",
       dob: {
         day: 15,
         month: 6,
@@ -81,13 +83,27 @@ export async function POST(request: Request) { //pools currently only supports A
         country: "US",
       },
     },
+    settings: {
+      card_issuing: {
+        tos_acceptance: {
+          date: Math.floor(Date.now() / 1000),
+          ip: "132.154.66.10",
+        },
+      },
+    },
     tos_acceptance: {
       date: Math.floor(Date.now() / 1000),
-      ip: "203.0.113.42",
+      ip: "132.154.66.10",
       service_agreement: "full",
     }
   });
-    return Response.json({ connectAccount });
+
+  const acct = await stripe.accounts.retrieve(connectAccount.id);
+  console.log('Capabilities:', acct.capabilities);
+  console.log('Requirements:', acct.requirements);
+  console.log('ToS Acceptance:', acct.tos_acceptance);
+
+  return Response.json({ connectAccount });
 }
 
 export async function DELETE(request: Request) {

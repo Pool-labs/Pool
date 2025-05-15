@@ -1,5 +1,5 @@
 // models/VirtualCard.ts
-export interface VirtualCard {
+export interface Card {
     id: string; // Unique identifier for the  card
     type: 'virtual' | 'physical'; // Type of card virtual or physical
     userId: string; // User associated with the  card
@@ -10,6 +10,6 @@ export interface VirtualCard {
     status: 'active' | 'inactive'; // Status of the card
   }
   
-  export const createVirtualCard = (id: string, userId: string, poolId: string, cardNumber: string, expiryDate: string, cvv: string, status: 'active' | 'inactive', type: 'virtual' | 'physical'): VirtualCard => {
+  export const createCard = (id: string, userId: string, poolId: string, cardNumber: string, expiryDate: string, cvv: string, status: 'active' | 'inactive', type: 'virtual' | 'physical'): Card => {
     return { id, userId, poolId, cardNumber, expiryDate, cvv, status, type };
   };
