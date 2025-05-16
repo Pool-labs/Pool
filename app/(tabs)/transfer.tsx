@@ -227,17 +227,17 @@ export default function TransferScreen() {
   // Handle pay/transfer action
   const handlePay = () => {
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert('Error', 'Please enter a valid amount');
+      console.log('Error: Please enter a valid amount');
       return;
     }
     
     if (!recipientEmail) {
-      Alert.alert('Error', 'Please enter recipient email');
+      console.log('Error: Please enter recipient email');
       return;
     }
     
     if (!selectedPaymentMethod) {
-      Alert.alert('Error', 'Please select a payment method');
+      console.log('Error: Please select a payment method');
       return;
     }
     
@@ -272,22 +272,22 @@ export default function TransferScreen() {
   const handleRequest = () => {
     if (requestMode === RequestMode.MANUAL) {
       if (!amount || parseFloat(amount) <= 0) {
-        Alert.alert('Error', 'Please enter a valid amount');
+        console.log('Error: Please enter a valid amount');
         return;
       }
       
       if (!recipientEmail) {
-        Alert.alert('Error', 'Please enter recipient email');
+        console.log('Error: Please enter recipient email');
         return;
       }
     } else {
       if (totalSelected <= 0) {
-        Alert.alert('Error', 'Please select at least one transaction');
+        console.log('Error: Please select at least one transaction');
         return;
       }
       
       if (!contacts.some(c => c.selected)) {
-        Alert.alert('Error', 'Please select at least one contact');
+        console.log('Error: Please select at least one contact');
         return;
       }
     }
@@ -654,34 +654,33 @@ export default function TransferScreen() {
 
   // Handle adding a new card to wallet
   const handleAddCardToWallet = async () => {
-    // Basic validation
-    if (!cardNumber || cardNumber.length < 16) {
-      Alert.alert('Error', 'Please enter a valid card number');
+    if (!cardNumber || cardNumber.replace(/\s/g, '').length < 16) {
+      console.log('Error: Please enter a valid card number');
       return;
     }
     
-    if (!cardExpiry || !cardExpiry.includes('/')) {
-      Alert.alert('Error', 'Please enter a valid expiry date (MM/YY)');
+    if (!cardExpiry || cardExpiry.length < 5) {
+      console.log('Error: Please enter a valid expiry date (MM/YY)');
       return;
     }
     
     if (!cardCVV || cardCVV.length < 3) {
-      Alert.alert('Error', 'Please enter a valid CVV code');
+      console.log('Error: Please enter a valid CVV code');
       return;
     }
     
-    if (!cardholderName) {
-      Alert.alert('Error', 'Please enter the cardholder name');
+    if (!cardholderName || cardholderName.trim() === '') {
+      console.log('Error: Please enter the cardholder name');
       return;
     }
     
     if (!selectedWallet) {
-      Alert.alert('Error', 'Please select a wallet to add your card to');
+      console.log('Error: Please select a wallet to add your card to');
       return;
     }
-
-    if (!userData?.id) {
-      Alert.alert('Error', 'User data not available. Please try again later.');
+    
+    if (!userData) {
+      console.log('Error: User data not available');
       return;
     }
     

@@ -7,7 +7,7 @@ import { Pool } from '../models/firebase/pool';
 import { getPoolsByMember } from '../services/firebase/poolService';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Payment } from '../models/firebase/payment';
 import { getPaymentsByUser, getRecentPayments } from '../services/firebase/paymentService';
 import { GestureHandlerRootView, PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
@@ -16,6 +16,9 @@ export default function PoolsScreen() {
   const { isDarkMode } = useTheme();
   const { user, userData } = useAuth();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const refreshKey = params.refresh; // Extract refresh parameter
+  
   const themeClass = isDarkMode ? 'dark-mode' : 'light-mode';
   const textColor = isDarkMode ? 'text-white' : 'text-pool-dark';
   const bgColor = isDarkMode ? '#0A1121' : '#F5F7FA';
@@ -36,32 +39,38 @@ export default function PoolsScreen() {
     ['#FBAB7E', '#F7CE68'], // Orange to yellow
   ];
 
-  useEffect(() => {
-    async function fetchUserPools() {
-      try {
-        setIsLoading(true);
-        
-        // If no user ID is available, don't try to fetch data but still turn off loading state
-        if (!userData?.id) {
-          setIsLoading(false);
-          return;
-        }
-        
-        // Fetch pools the user is a member of
-        const userPools = await getPoolsByMember(userData.id);
-        setPools(userPools);
-        
-        // Fetch recent activities (payments) for the user
-        const userPayments = await getPaymentsByUser(userData.id);
-        setRecentActivities(userPayments);
-      } catch (error) {
-        console.error("Error fetching pool data:", error);
-      } finally {
+  // Function to fetch pools and activities
+  const fetchUserData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // If no user ID is available, don't try to fetch data but still turn off loading state
+      if (!userData?.id) {
         setIsLoading(false);
+        return;
       }
+      
+      // Fetch pools the user is a member of
+      const userPools = await getPoolsByMember(userData.id);
+      setPools(userPools);
+      
+      // Fetch recent activities (payments) for the user
+      const userPayments = await getPaymentsByUser(userData.id);
+      setRecentActivities(userPayments);
+    } catch (error) {
+      console.error("Error fetching pool data:", error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    fetchUserPools();
+  };
+
+  // Initial fetch and when userData changes
+  useEffect(() => {
+    if (userData?.id) {
+      fetchUserData();
+    } else {
+      setIsLoading(false);
+    }
     
     // Add a safety timeout to ensure loading state is turned off
     const safetyTimer = setTimeout(() => {
@@ -70,6 +79,14 @@ export default function PoolsScreen() {
     
     return () => clearTimeout(safetyTimer);
   }, [userData?.id]);
+
+  // Refresh when refreshKey changes (new pool created)
+  useEffect(() => {
+    if (refreshKey && userData?.id) {
+      console.log('Refreshing pools due to refresh param:', refreshKey);
+      fetchUserData();
+    }
+  }, [refreshKey, userData?.id]);
 
   // Function to get gradient colors based on pool index
   const getGradientColors = (index: number) => {

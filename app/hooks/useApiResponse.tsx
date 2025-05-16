@@ -38,10 +38,17 @@ const useApiResponseStore = create<ApiResponseState>((set) => ({
   
   // Set success state and show success toast
   setSuccess: (message, data = null) => {
+    // Remove API-specific wording from success messages
+    const genericMessage = message
+      .replace(/Stripe|Firebase/gi, '')
+      .replace(/account|customer/gi, 'profile')
+      .replace(/(successfully|success).*(created|initiated|verified)/gi, 'successful')
+      .trim();
+    
     Toast.show({
       type: 'success',
       text1: 'Success',
-      text2: message,
+      text2: genericMessage,
       position: 'bottom',
       visibilityTime: 4000,
     });
@@ -57,13 +64,14 @@ const useApiResponseStore = create<ApiResponseState>((set) => ({
   
   // Set error state and show error toast
   setError: (message, statusCode) => {
-    Toast.show({
-      type: 'error',
-      text1: 'Error',
-      text2: message,
-      position: 'bottom',
-      visibilityTime: 4000,
-    });
+    // No longer showing error toasts
+    // Toast.show({
+    //   type: 'error',
+    //   text1: 'Error',
+    //   text2: message,
+    //   position: 'bottom',
+    //   visibilityTime: 4000,
+    // });
     
     set({ 
       isLoading: false,
@@ -108,7 +116,7 @@ export const useApiResponse = () => {
       successMessage,
       errorMessage = 'Something went wrong. Please try again.',
       showSuccessToast = true,
-      showErrorToast = true,
+      showErrorToast = true, // This parameter is now ignored, errors will never show toasts
     } = options || {};
     
     try {
@@ -116,7 +124,14 @@ export const useApiResponse = () => {
       const result = await apiCall();
       
       if (showSuccessToast && successMessage) {
-        store.setSuccess(successMessage, result);
+        // Clean any API-specific terms before displaying
+        const genericSuccessMessage = successMessage
+          .replace(/Stripe|Firebase/gi, '')
+          .replace(/account|customer/gi, 'profile')
+          .replace(/(successfully|success).*(created|initiated|verified)/gi, 'successful')
+          .trim();
+          
+        store.setSuccess(genericSuccessMessage, result);
       } else {
         // Still set success state but don't show toast
         store.setState({ 
@@ -132,19 +147,20 @@ export const useApiResponse = () => {
     } catch (error: any) {
       const message = error?.message || errorMessage;
       
-      if (showErrorToast) {
-        store.setError(message, error?.statusCode);
-      } else {
-        // Still set error state but don't show toast
-        store.setState({ 
-          isLoading: false,
-          isSuccess: false,
-          isError: true,
-          message,
-          statusCode: error?.statusCode,
-          data: null
-        });
-      }
+      // Never show error toasts regardless of showErrorToast parameter
+      // if (showErrorToast) {
+      //   store.setError(message, error?.statusCode);
+      // } else {
+      // Always just set error state without toast
+      store.setState({ 
+        isLoading: false,
+        isSuccess: false,
+        isError: true,
+        message,
+        statusCode: error?.statusCode,
+        data: null
+      });
+      // }
       
       return null;
     }

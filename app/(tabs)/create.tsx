@@ -68,7 +68,7 @@ export default function CreateScreen() {
 
   const handleCreatePool = async () => {
     if (!user || !userData) {
-      Alert.alert('Error', 'You must be logged in to create a pool');
+      console.log('Error: User must be logged in to create a pool');
       return;
     }
 
@@ -149,13 +149,17 @@ export default function CreateScreen() {
           text: 'OK',
           onPress: () => {
             // Navigate to pools tab after dismissing the alert
-            router.replace("/(tabs)/pools");
+            // Use the refreshKey parameter to force a refresh of the pools list
+            router.replace({
+              pathname: "/(tabs)/pools",
+              params: { refresh: Date.now().toString() }
+            });
           }
         }]
       );
     } catch (error) {
       console.error('Error creating pool:', error);
-      Alert.alert('Error', 'Failed to create pool. Please try again.');
+      // Silent error handling - don't show Alert
     } finally {
       setIsLoading(false);
     }

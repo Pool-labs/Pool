@@ -124,6 +124,17 @@ export default function TabLayout() {
                       color="#FFFFFF" // Always use the focused/active icon color
                     />
                   </View>
+                  {/* Place the label directly within the icon component for better control */}
+                  <Text style={[
+                    styles.tabLabel,
+                    { 
+                      color: isDarkMode ? '#FFFFFF' : '#0074E4',
+                      fontWeight: '600',
+                      marginTop: 10, // Space between icon and label
+                    }
+                  ]}>
+                    Pools
+                  </Text>
                 </View>
               );
             } else {
@@ -142,18 +153,8 @@ export default function TabLayout() {
           tabBarLabel: ({ focused, color }) => {
             // Custom label styling
             if (routeName === 'pools') {
-              return (
-                <Text style={[
-                  styles.tabLabel, 
-                  styles.poolsTabLabel,
-                  { 
-                    color: focused ? (isDarkMode ? '#FFFFFF' : '#0074E4') : (isDarkMode ? '#A3BFFA' : '#8A8A8A'),
-                    fontWeight: focused ? '600' : '500'
-                  }
-                ]}>
-                  Pools
-                </Text>
-              );
+              // Return null because we're rendering the label in the icon component
+              return null;
             } else {
               return (
                 <Text style={[
@@ -237,6 +238,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   poolsTabLabel: {
-    marginTop: 20, // Increased to drop the Pools label further down to match lowered button
+    marginTop: 0, // Remove top margin as we're using absolute positioning
+    position: 'absolute',
+    bottom: -32, // Move it up slightly from previous -35
+    width: 60, // Match width to the icon container width
+    textAlign: 'center',
+    left: 0, // Center it (was -10 which pushed it left)
   }
 }); 
