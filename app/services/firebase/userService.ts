@@ -11,10 +11,11 @@ import {
   where, 
   arrayUnion, 
   arrayRemove, 
-  getFirestore, 
   onSnapshot
 } from '@react-native-firebase/firestore';
 import { User, createUser } from '../../models/firebase/user';
+import { getFirestore } from './config';
+import { useFirebaseService } from './serviceHandler';
 
 const USERS_COLLECTION = 'users';
 const db = getFirestore();
@@ -312,4 +313,130 @@ export const onUserChanged = (userId: string, onNext: (user: User | null) => voi
     // Return a no-op unsubscribe function in case of error
     return () => {};
   }
+};
+
+/**
+ * Hook to provide user service functions with error handling and toast notifications
+ */
+export const useUserService = () => {
+  const { executeOperation } = useFirebaseService();
+
+  /**
+   * Creates a new user with error handling and toast notification
+   */
+  const createUser = async (
+    email: string, 
+    name: string, 
+    cryptoWalletId: string,
+    customerId: string,
+    poolIds: string[] = [], 
+    paymentMethodId?: string, 
+    cardIds?: string[]
+  ): Promise<User | null> => {
+    return executeOperation(
+      () => createUserInFirestore(email, name, cryptoWalletId, customerId, poolIds, paymentMethodId, cardIds),
+      {
+        operationName: 'Create user',
+        successMessage: 'User account created successfully',
+      }
+    );
+  };
+
+  /**
+   * Creates a user with specific ID with error handling
+   */
+  const createUserWithSpecificId = async (
+    id: string,
+    email: string,
+    name: string,
+    cryptoWalletId: string,
+    customerId: string,
+    poolIds: string[] = [],
+    paymentMethodId?: string,
+    cardIds?: string[]
+  ): Promise<User | null> => {
+    return executeOperation(
+      () => createUserWithId(id, email, name, cryptoWalletId, customerId, poolIds, paymentMethodId, cardIds),
+      {
+        operationName: 'Create user',
+        successMessage: 'User account created successfully',
+      }
+    );
+  };
+
+  /**
+   * Retrieves a user by ID with error handling
+   */
+  const getUser = async (userId: string): Promise<User | null> => {
+    return executeOperation(
+      () => getUserById(userId),
+      {
+        operationName: 'Get user',
+        showSuccessToast: false,
+      }
+    );
+  };
+
+  /**
+   * Updates a user with error handling
+   */
+  const updateUserData = async (userId: string, updates: Partial<User>): Promise<void | null> => {
+    return executeOperation(
+      () => updateUser(userId, updates),
+      {
+        operationName: 'Update user',
+        successMessage: 'User profile updated successfully',
+      }
+    );
+  };
+
+  /**
+   * Adds a pool to user with error handling
+   */
+  const addPool = async (userId: string, poolId: string): Promise<void | null> => {
+    return executeOperation(
+      () => addPoolToUser(userId, poolId),
+      {
+        operationName: 'Add pool',
+        successMessage: 'Added to pool successfully',
+      }
+    );
+  };
+
+  /**
+   * Removes a pool from user with error handling
+   */
+  const removePool = async (userId: string, poolId: string): Promise<void | null> => {
+    return executeOperation(
+      () => removePoolFromUser(userId, poolId),
+      {
+        operationName: 'Remove pool',
+        successMessage: 'Removed from pool successfully',
+      }
+    );
+  };
+
+  /**
+   * Deletes a user with error handling
+   */
+  const deleteUserAccount = async (userId: string): Promise<void | null> => {
+    return executeOperation(
+      () => deleteUser(userId),
+      {
+        operationName: 'Delete account',
+        successMessage: 'Account deleted successfully',
+      }
+    );
+  };
+
+  return {
+    createUser,
+    createUserWithSpecificId,
+    getUser,
+    updateUserData,
+    addPool,
+    removePool,
+    deleteUserAccount,
+    // Add more wrapped functions as needed
+  };
 }; 

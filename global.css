@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .dark-mode {
+    @apply bg-pool-dark text-white;
+  }
+  
+  .light-mode {
+    @apply bg-white text-pool-dark;
+  }
+  
+  .tab-active {
+    @apply text-white font-bold;
+  }
+  
+  .tab-inactive {
+    @apply text-pool-gray font-normal;
+  }
+}

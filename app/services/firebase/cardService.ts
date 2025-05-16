@@ -9,11 +9,11 @@ import {
   deleteDoc,
   query,
   where,
-  getFirestore,
   onSnapshot,
   writeBatch
 } from '@react-native-firebase/firestore';
 import { Card, createCard } from '../../models/firebase/card';
+import { getFirestore } from './config';
 
 const CARDS_COLLECTION = 'cards';
 const db = getFirestore();

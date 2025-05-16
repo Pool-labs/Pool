@@ -1,5 +1,5 @@
 import {
-  getAuth,
+  FirebaseAuthTypes,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -8,6 +8,8 @@ import {
 } from '@react-native-firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import googleServices from '../../../google-services.json';
+import { getAuth } from './config';
+import { useFirebaseService } from './serviceHandler';
 
 GoogleSignin.configure({
   webClientId: googleServices.client[0].oauth_client[0].client_id,
@@ -18,13 +20,15 @@ export interface AuthError {
   message: string;
 }
 
+// Base auth functions - no error toast handling
+
 export const signUpWithEmail = async (
   email: string,
   password: string
 ): Promise<any> => {
   try {
-    const auth = getAuth();
-    return await createUserWithEmailAndPassword(auth, email, password);
+    const authInstance = getAuth();
+    return await createUserWithEmailAndPassword(authInstance, email, password);
   } catch (error) {
     throw error;
   }
@@ -35,8 +39,8 @@ export const signInWithEmail = async (
   password: string
 ): Promise<any> => {
   try {
-    const auth = getAuth();
-    return await signInWithEmailAndPassword(auth, email, password);
+    const authInstance = getAuth();
+    return await signInWithEmailAndPassword(authInstance, email, password);
   } catch (error) {
     throw error;
   }
@@ -59,8 +63,8 @@ export const signInWithGoogle = async (): Promise<any> => {
     // Create a Firebase credential with the token
     const googleCredential = GoogleAuthProvider.credential(idToken);
     // Sign in to Firebase with the credential
-    const auth = getAuth();
-    return signInWithCredential(auth, googleCredential);
+    const authInstance = getAuth();
+    return signInWithCredential(authInstance, googleCredential);
   } catch (error) {
     throw error;
   }
@@ -68,9 +72,79 @@ export const signInWithGoogle = async (): Promise<any> => {
 
 export const logout = async (): Promise<void> => {
   try {
-    const auth = getAuth();
-    await signOut(auth);
+    const authInstance = getAuth();
+    await signOut(authInstance);
   } catch (error) {
     throw error;
   }
+};
+
+/**
+ * Hook to provide authentication functions with error handling and toast notifications
+ */
+export const useAuthService = () => {
+  const { executeOperation } = useFirebaseService();
+
+  /**
+   * Sign up with email and password with error handling
+   */
+  const signUp = async (email: string, password: string): Promise<any | null> => {
+    return executeOperation(
+      () => signUpWithEmail(email, password),
+      {
+        operationName: 'Sign up',
+        successMessage: 'Account created successfully',
+        errorMessage: 'Failed to create account',
+      }
+    );
+  };
+
+  /**
+   * Sign in with email and password with error handling
+   */
+  const signIn = async (email: string, password: string): Promise<any | null> => {
+    return executeOperation(
+      () => signInWithEmail(email, password),
+      {
+        operationName: 'Sign in',
+        successMessage: 'Signed in successfully',
+        errorMessage: 'Failed to sign in',
+      }
+    );
+  };
+
+  /**
+   * Sign in with Google with error handling
+   */
+  const googleSignIn = async (): Promise<any | null> => {
+    return executeOperation(
+      () => signInWithGoogle(),
+      {
+        operationName: 'Google sign in',
+        successMessage: 'Signed in with Google successfully',
+        errorMessage: 'Failed to sign in with Google',
+      }
+    );
+  };
+
+  /**
+   * Logout with error handling
+   */
+  const signOut = async (): Promise<void | null> => {
+    return executeOperation(
+      () => logout(),
+      {
+        operationName: 'Sign out',
+        successMessage: 'Signed out successfully',
+        errorMessage: 'Failed to sign out',
+      }
+    );
+  };
+
+  return {
+    signUp,
+    signIn,
+    googleSignIn,
+    signOut,
+  };
 }; 

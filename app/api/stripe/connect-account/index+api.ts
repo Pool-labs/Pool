@@ -95,11 +95,6 @@ export async function POST(request: Request) { //pools currently only supports A
     }
   });
 
-  const acct = await stripe.accounts.retrieve(connectAccount.id);
-  console.log('Capabilities:', acct.capabilities);
-  console.log('Requirements:', acct.requirements);
-  console.log('ToS Acceptance:', acct.tos_acceptance);
-
   return Response.json({ connectAccount });
 }
 

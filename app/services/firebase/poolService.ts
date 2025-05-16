@@ -11,11 +11,11 @@ import {
   where,
   arrayUnion,
   arrayRemove,
-  getFirestore,
   onSnapshot,
   runTransaction
 } from '@react-native-firebase/firestore';
 import { Pool, createPool } from '../../models/firebase/pool';
+import { getFirestore } from './config';
 
 const POOLS_COLLECTION = 'pools';
 const db = getFirestore();

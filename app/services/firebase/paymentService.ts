@@ -11,11 +11,13 @@ import {
   where,
   orderBy,
   limit,
-  getFirestore,
   onSnapshot,
   writeBatch
 } from '@react-native-firebase/firestore';
 import { Payment, createPayment } from '../../models/firebase/payment';
+import { getFirestore, getAuth } from './config';
+import { useApiResponse } from '../../hooks/useApiResponse';
+import useBearStore from '../../hooks/useBearStore';
 
 const PAYMENTS_COLLECTION = 'payments';
 const db = getFirestore();
@@ -267,4 +269,138 @@ export const onUserPaymentsChanged = (
     }));
     onNext(payments);
   });
+};
+
+// Example API functions for Stripe payments
+export const usePaymentService = () => {
+  const { handleApiCall } = useApiResponse();
+  // We can access the bear store if needed for state that affects payments
+  const bears = useBearStore(state => state.bears);
+  
+  // Create a payment method for the current user
+  const createPaymentMethod = async (paymentDetails: {
+    accountNumber: string;
+    routingNumber: string;
+    accountHolderName: string;
+    accountType: 'checking' | 'savings';
+  }) => {
+    return handleApiCall(
+      async () => {
+        // Get current user
+        const auth = getAuth();
+        const user = auth.currentUser;
+        
+        if (!user) {
+          throw new Error('You must be logged in to create a payment method');
+        }
+        
+        // This would normally be an API call to your server
+        // which would then call Stripe API
+        // For now, we'll simulate this process
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Validate payment details
+        if (!paymentDetails.accountNumber || !paymentDetails.routingNumber) {
+          throw new Error('Invalid payment details');
+        }
+        
+        // Simulate successful response from Stripe
+        return {
+          id: 'pm_' + Math.random().toString(36).substring(2, 15),
+          type: 'ach_debit',
+          created: Date.now(),
+          last4: paymentDetails.accountNumber.slice(-4),
+          bankName: 'Test Bank',
+        };
+      },
+      {
+        successMessage: 'Payment method added successfully',
+        errorMessage: 'Failed to add payment method',
+      }
+    );
+  };
+  
+  // Process a payment
+  const processPayment = async (amount: number, description: string) => {
+    return handleApiCall(
+      async () => {
+        // Get current user
+        const auth = getAuth();
+        const user = auth.currentUser;
+        
+        if (!user) {
+          throw new Error('You must be logged in to make a payment');
+        }
+        
+        // Validate amount
+        if (amount <= 0) {
+          throw new Error('Amount must be greater than 0');
+        }
+        
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Random success/failure for demonstration
+        const isSuccess = Math.random() > 0.3;
+        
+        if (!isSuccess) {
+          throw new Error('Payment processing failed');
+        }
+        
+        // Return successful payment data
+        return {
+          id: 'py_' + Math.random().toString(36).substring(2, 15),
+          amount,
+          currency: 'usd',
+          status: 'succeeded',
+          description,
+          created: Date.now(),
+        };
+      },
+      {
+        successMessage: `Payment of $${amount.toFixed(2)} successful`,
+        errorMessage: 'Payment failed',
+      }
+    );
+  };
+  
+  // Get payment history
+  const getPaymentHistory = async () => {
+    return handleApiCall(
+      async () => {
+        // Get current user
+        const auth = getAuth();
+        const user = auth.currentUser;
+        
+        if (!user) {
+          throw new Error('You must be logged in to view payment history');
+        }
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Simulate payment history
+        return Array.from({ length: 5 }).map((_, i) => ({
+          id: 'py_' + Math.random().toString(36).substring(2, 15),
+          amount: Math.floor(Math.random() * 10000) / 100,
+          currency: 'usd',
+          status: ['succeeded', 'pending', 'succeeded', 'succeeded', 'failed'][i],
+          description: ['Monthly fee', 'Transfer to pool', 'Withdrawal', 'Deposit', 'Service charge'][i],
+          created: Date.now() - i * 86400000, // days ago
+        }));
+      },
+      {
+        successMessage: 'Payment history loaded',
+        showSuccessToast: false, // Don't show success toast for this one
+      }
+    );
+  };
+  
+  return {
+    createPaymentMethod,
+    processPayment,
+    getPaymentHistory,
+  };
 }; 

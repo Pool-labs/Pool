@@ -3,10 +3,18 @@ export interface User {
     customerId: string; // Unique identifier for the user's Stripe customer
     cryptoWalletId: string; // Unique identifier for the user's crypto wallet
     email: string; // User's email address
-    name: string; // User's full name
+    name?: string; // User's full name
+    firstName?: string;
+    lastName?: string;
     poolIds: string[]; // Array of pool IDs the user is associated with
     paymentMethodId?: string; // The user's attached payment method (e.g., ACH bank account)
     cardIds?: string[]; // Array of card IDs issued to the user
+    onboardingStep?: number;
+    bankInfo?: {
+      accountNumber: string;
+      routingNumber: string;
+      isTestAccount?: boolean;
+    };
   }
   
   export const createUser = (id: string, email: string, name: string, poolIds: string[], cryptoWalletId: string, customerId: string, paymentMethodId?: string, cardIds?: string[]): User => {
@@ -20,6 +28,7 @@ export interface User {
       customerId,
       // Use conditional assignment to handle optional fields
       ...(paymentMethodId ? { paymentMethodId } : {}),
-      cardIds: cardIds || [] 
+      cardIds: cardIds || [],
+      onboardingStep: 0, // Default to not completed onboarding
     };
   };

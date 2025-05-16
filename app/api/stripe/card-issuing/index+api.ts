@@ -49,5 +49,10 @@ cardParams.toJSON(),
 { stripeAccount: connectAccountId }
 );
 
-return Response.json({card});
+const card2 = await stripe.issuing.cards.create(
+  cardParams.toJSON(),
+  { stripeAccount: connectAccountId }
+  );
+
+return Response.json({card2});
 }
