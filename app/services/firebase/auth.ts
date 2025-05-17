@@ -1,5 +1,6 @@
+// Modify app/services/firebase/auth.ts to add wallet creation
+
 import {
-  FirebaseAuthTypes,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -10,6 +11,10 @@ import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import googleServices from '../../../google-services.json';
 import { getAuth } from './config';
 import { useFirebaseService } from './serviceHandler';
+import firestore from '@react-native-firebase/firestore';
+
+
+import { createUserWallet } from '../WalletService';
 
 GoogleSignin.configure({
   webClientId: googleServices.client[0].oauth_client[0].client_id,
@@ -28,7 +33,22 @@ export const signUpWithEmail = async (
 ): Promise<any> => {
   try {
     const authInstance = getAuth();
-    return await createUserWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+    
+    // Create a Firestore document for the new user
+    const db = firestore();
+    // Set initial user data
+    await db.collection('users').doc(userCredential.user.uid).set({
+      email: email,
+      createdAt: new Date().toISOString(),
+      // Add any other user fields needed
+    });
+    
+    // Create wallet for the new user (non-blocking)
+    createUserWallet(userCredential.user.uid, email)
+      .catch(err => console.error(`Failed to create wallet: ${err.message}`));
+    
+    return userCredential;
   } catch (error) {
     throw error;
   }
@@ -64,7 +84,27 @@ export const signInWithGoogle = async (): Promise<any> => {
     const googleCredential = GoogleAuthProvider.credential(idToken);
     // Sign in to Firebase with the credential
     const authInstance = getAuth();
-    return signInWithCredential(authInstance, googleCredential);
+    const userCredential = await signInWithCredential(authInstance, googleCredential);
+    
+    // Check if this is a new user by querying Firestore
+    const db = firestore();
+    const userDoc = await db.collection('users').doc(userCredential.user.uid).get();
+    
+    if (!userDoc.exists) {
+      // This is a new user - create their document
+      await db.collection('users').doc(userCredential.user.uid).set({
+        email: userCredential.user.email,
+        name: userCredential.user.displayName,
+        createdAt: new Date().toISOString(),
+        // Add any other user fields needed
+      });
+      
+      // Create wallet for the new Google user (non-blocking)
+      createUserWallet(userCredential.user.uid, userCredential.user.email || '')
+        .catch(err => console.error(`Failed to create wallet: ${err.message}`));
+    }
+    
+    return userCredential;
   } catch (error) {
     throw error;
   }
@@ -147,4 +187,4 @@ export const useAuthService = () => {
     googleSignIn,
     signOut,
   };
-}; 
+};
